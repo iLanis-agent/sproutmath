@@ -21,9 +21,14 @@ table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
 td{padding:7px 0;border-bottom:1px solid #e3e3ea}td+td{text-align:right;font-weight:600}
 .err{color:var(--bad);font-size:14px;margin-top:10px;min-height:1em}
 .note{font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.4}
+.warn{max-width:1100px;margin:18px auto 0;padding:14px 18px;border:2px solid #b02020;border-radius:12px;background:#fdf3f2;color:#7a1a1a;font-size:14.5px;line-height:1.5}
+.warn a{color:#7a1a1a;font-weight:600}
+.warn strong{color:#5c1010}
+
 </style></head><body>
 <header><h1>Sprout<span>math</span></h1>
 <p class="sub">One jar drowns, the next molds, and the third harvests all at once - then nothing for two weeks. Sproutmath turns the seed packet into a day-by-day plan, a rotation that never gaps, and an honest verdict on how much seed a jar can hold.</p></header>
+<div class="warn" role="alert"><strong>Food safety boundary:</strong> rinsing, no visible mold, and following this schedule do <strong>not</strong> make home sprouts safe. Salmonella, Listeria and E. coli can multiply during home sprouting even under sanitary conditions, and washing reduces but does not eliminate bacteria. Raw or lightly cooked home sprouts carry real illness risk - cooking sprouts thoroughly reduces it. Children, older adults, pregnant people and anyone with a weakened immune system should avoid raw or lightly cooked sprouts. Source: <a href="https://www.fda.gov/food/buy-store-serve-safe-food/selecting-and-serving-produce-safely">FDA, Selecting and Serving Produce Safely</a>.</div>
 <main>
 <section class="card"><h2>Jar plan</h2>
 <label>Seed</label><select id="p_s"></select>
@@ -60,7 +65,7 @@ td{padding:7px 0;border-bottom:1px solid #e3e3ea}td+td{text-align:right;font-wei
 <div class="big" id="r_big">-</div><div class="cap">rinses per day</div>
 <div id="r_pill"></div>
 <table id="r_rows"></table>
-<p class="note">At 24&deg;C and above, add a rinse - warm water is a mold subsidy. Labeled guidance.</p></section>
+<p class="note">At 24&deg;C and above, add a rinse - warm water is a mold subsidy. Labeled guidance for mold control only: no rinse rhythm makes raw sprouts safe to eat - see the FDA warning above.</p></section>
 </main>
 <script src="engine.js?v=1"></script>
 <script>
