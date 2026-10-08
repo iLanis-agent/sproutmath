@@ -1,0 +1,94 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sproutmath - sprout jars without the mold</title>
+<style>
+:root{--gr:#1f7a3a;--ink:#1d1d24;--mut:#5a5a66;--card:#f6f6f9;--ok:#0c7a3d;--bad:#b02020}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#fff}
+header{padding:28px 20px 8px;max-width:1100px;margin:0 auto}
+h1{font-size:28px;margin:0}h1 span{color:var(--gr)}
+.sub{color:var(--mut);max-width:660px;margin-top:8px;line-height:1.45}
+main{max-width:1100px;margin:24px auto;padding:0 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{background:var(--card);border-radius:14px;padding:18px}
+.card h2{margin:0 0 12px;font-size:18px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}
+input,select{width:100%;padding:9px 10px;border:1px solid #d5d5de;border-radius:8px;font-size:15px;background:#fff}
+button{margin-top:14px;width:100%;padding:11px;border:0;border-radius:9px;background:var(--gr);color:#fff;font-size:15px;font-weight:600;cursor:pointer}
+.big{font-size:34px;font-weight:700;margin:14px 0 2px}
+.cap{font-size:13px;color:var(--mut)}
+.pill{display:inline-block;margin-top:10px;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:600}
+.pill.ok{background:#e2f4e8;color:var(--ok)}.pill.bad{background:#fbe3e3;color:var(--bad)}.pill.note{background:#e8ecf8;color:#2b3f8f}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+td{padding:7px 0;border-bottom:1px solid #e3e3ea}td+td{text-align:right;font-weight:600}
+.err{color:var(--bad);font-size:14px;margin-top:10px;min-height:1em}
+.note{font-size:12.5px;color:var(--mut);margin-top:10px;line-height:1.4}
+</style></head><body>
+<header><h1>Sprout<span>math</span></h1>
+<p class="sub">One jar drowns, the next molds, and the third harvests all at once - then nothing for two weeks. Sproutmath turns the seed packet into a day-by-day plan, a rotation that never gaps, and an honest verdict on how much seed a jar can hold.</p></header>
+<main>
+<section class="card"><h2>Jar plan</h2>
+<label>Seed</label><select id="p_s"></select>
+<label>Jar size (liters)</label><input id="p_j" type="number" step="0.25" value="1">
+<button id="p_go">Plan the jar</button>
+<div class="err" id="p_err"></div>
+<div class="big" id="p_big">-</div><div class="cap">expected harvest</div>
+<div id="p_pill"></div>
+<table id="p_rows"></table><table id="p_steps"></table>
+<p class="note">Seed table is published sprouting norms (soak, rinses, days, yield, density) - labeled guidance; your variety and kitchen move real results.</p></section>
+
+<section class="card"><h2>Continuous supply</h2>
+<label>Target (g per week)</label><input id="c_g" type="number" step="10" value="150">
+<button id="c_go">Set the rhythm</button>
+<div class="err" id="c_err"></div>
+<div class="big" id="c_big">-</div><div class="cap">start a jar this often</div>
+<div id="c_pill"></div>
+<table id="c_rows"></table>
+<p class="note">Interval = jar harvest / daily appetite. Rotation count covers the grow cycle plus a wash day, so no gap weeks.</p></section>
+
+<section class="card"><h2>Overcrowding check</h2>
+<label>Seed you measured (g)</label><input id="d_g" type="number" step="1" value="20">
+<button id="d_go">Check the density</button>
+<div class="err" id="d_err"></div>
+<div class="big" id="d_big">-</div><div class="cap">vs the jar's honest capacity</div>
+<div id="d_pill"></div>
+<table id="d_rows"></table>
+<p class="note">Overfilled jars do not yield more - they rot in the middle. Labeled density from published norms.</p></section>
+
+<section class="card"><h2>Warm-room rinse</h2>
+<label>Room temperature (&deg;C)</label><input id="r_t" type="number" step="0.5" value="21">
+<button id="r_go">Check the rhythm</button>
+<div class="err" id="r_err"></div>
+<div class="big" id="r_big">-</div><div class="cap">rinses per day</div>
+<div id="r_pill"></div>
+<table id="r_rows"></table>
+<p class="note">At 24&deg;C and above, add a rinse - warm water is a mold subsidy. Labeled guidance.</p></section>
+</main>
+<script src="engine.js?v=1"></script>
+<script>
+const $=id=>document.getElementById(id);
+const sel=$('p_s');
+Object.entries(Sproutmath.SEEDS).forEach(([k,v])=>{const o=document.createElement('option');o.value=k;o.textContent=v.label;sel.appendChild(o);});
+const run=(eid,fn,draw)=>{const e=$(eid);try{e.textContent='';draw(fn());}catch(err){e.textContent=err.message;}};
+const row=(k,v)=>`<tr><td>${k}</td><td>${v}</td></tr>`;
+const pill=(id,cls,txt)=>{$(id).innerHTML=`<span class="pill ${cls}">${txt}</span>`;};
+function pIn(){return [sel.value,+$('p_j').value];}
+function pGo(){run('p_err',()=>Sproutmath.plan(...pIn()),r=>{
+  $('p_big').textContent=Math.round(r.harvestG)+' g';
+  pill('p_pill','ok','day '+r.daysToHarvest+' harvest');
+  $('p_rows').innerHTML=row('seed to weigh',r.seedG.toFixed(0)+' g')+row('soak',r.soakH+' hours')+row('rinse rhythm',r.rinsesPerDay+'x daily')+row('grow days',r.daysToHarvest)+row('yield multiplier',r.yieldX+'x (labeled)');
+  $('p_steps').innerHTML=r.steps.map(s=>`<tr><td>day ${s.day}</td><td style="text-align:left;font-weight:400">${s.what}</td></tr>`).join('');});}
+function cGo(){run('c_err',()=>Sproutmath.continuous(sel.value,+$('p_j').value,+$('c_g').value),r=>{
+  $('c_big').textContent='every '+r.intervalDays.toFixed(1)+' d';
+  pill('c_pill',r.jarsInRotation>3?'note':'ok',r.jarsInRotation+(r.jarsInRotation===1?' jar':' jars')+' in rotation');
+  $('c_rows').innerHTML=row('harvest per jar',Math.round(r.harvestPerJarG)+' g')+row('cycle length',r.cycleDays+' days')+row('weekly yield at rhythm',Math.round(r.weeklyYieldG)+' g');});}
+function dGo(){run('d_err',()=>Sproutmath.densityCheck(sel.value,+$('p_j').value,+$('d_g').value),r=>{
+  $('d_big').textContent=r.ratio.toFixed(2)+'x';
+  pill('d_pill',r.fits?'ok':(r.ratio<=1.5?'note':'bad'),r.verdict);
+  $('d_rows').innerHTML=row('jar honest capacity',r.maxG.toFixed(0)+' g seed');});}
+function rGo(){run('r_err',()=>Sproutmath.rinseCheck(sel.value,+$('r_t').value),r=>{
+  $('r_big').textContent=r.rinsesPerDay+'x';
+  pill('r_pill',r.rinsesPerDay>2?'note':'ok',r.verdict);
+  $('r_rows').innerHTML='';});}
+$('p_go').onclick=()=>{pGo();cGo();dGo();rGo();};
+$('c_go').onclick=cGo;$('d_go').onclick=dGo;$('r_go').onclick=rGo;
+pGo();cGo();dGo();rGo();
+</script></body></html>
